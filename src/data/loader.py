@@ -6,13 +6,21 @@ def load_xlsum_languages(languages=["en", "hi", "pa"]):
         "hi": "hindi",
         "pa": "punjabi"
     }
-    
-    datasets = {}
+
+    all_data = {
+        "train": [],
+        "validation": [],
+        "test": []
+    }
+
     for lang_code in languages:
         lang_name = lang_code_map[lang_code]
-        ds = load_dataset("GEM/xlsum", lang_name, trust_remote_code=True) 
-        for split in ds:
-            ds[split] = ds[split].add_column("lang", [lang_code] * len(ds[split]))
-        datasets[lang_code] = ds
+        try:
+            dataset = load_dataset("GEM/xlsum", lang_name)
+            for split in dataset:
+                dataset[split] = dataset[split].add_column("lang", [lang_code] * len(dataset[split]))
+                all_data[split].append(dataset[split])
+        except Exception as e:
+            print(f"Failed to load {lang_code}: {e}")
 
-    return datasets
+    return all_data
